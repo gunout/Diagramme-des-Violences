@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagramme des Violences - Futuriste</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Orbitron', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: #000;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 0, 85, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 80% 80%, rgba(255, 0, 85, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 40% 40%, rgba(255, 0, 85, 0.05) 0%, transparent 30%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(0deg, transparent 24%, rgba(255, 0, 85, 0.03) 25%, rgba(255, 0, 85, 0.03) 26%, transparent 27%, transparent 74%, rgba(255, 0, 85, 0.03) 75%, rgba(255, 0, 85, 0.03) 76%, transparent 77%, transparent),
+                linear-gradient(90deg, transparent 24%, rgba(255, 0, 85, 0.03) 25%, rgba(255, 0, 85, 0.03) 26%, transparent 27%, transparent 74%, rgba(255, 0, 85, 0.03) 75%, rgba(255, 0, 85, 0.03) 76%, transparent 77%, transparent);
+            background-size: 50px 50px;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(20, 20, 20, 0.8);
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(255, 0, 85, 0.3);
+            border: 1px solid rgba(255, 0, 85, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, transparent, #ff0055, transparent);
+            animation: scan 3s infinite linear;
+        }
+
+        @keyframes scan {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        h1 {
+            color: #fff;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+            text-shadow: 0 0 10px rgba(255, 0, 85, 0.7);
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: rgba(255, 0, 85, 0.8);
+            font-size: 1.1em;
+            font-weight: 300;
+        }
+
+        .diagram-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 1024px) {
+            .diagram-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .category {
+            background: rgba(20, 20, 20, 0.8);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 0 20px rgba(255, 0, 85, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(255, 0, 85, 0.1);
+            position: relative;
+        }
+
+        .category::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(255, 0, 85, 0.05) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .category:hover::before {
+            opacity: 1;
+        }
+
+        .category:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 30px rgba(255, 0, 85, 0.4);
+        }
+
+        .category h2 {
+            color: #fff;
+            border-bottom: 3px solid;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            text-shadow: 0 0 5px rgba(255, 0, 85, 0.5);
+        }
+
+        .category-nature h2 { border-color: #ff0055; }
+        .category-context h2 { border-color: #ff0055; }
+        .category-visibility h2 { border-color: #ff0055; }
+
+        .items-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .item {
+            padding: 15px;
+            background: rgba(30, 30, 30, 0.7);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .item::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(255, 0, 85, 0.2), transparent);
+            transition: width 0.3s ease;
+        }
+
+        .item:hover::before {
+            width: 100%;
+        }
+
+        .item:hover {
+            background: rgba(40, 40, 40, 0.8);
+            transform: translateX(5px);
+            box-shadow: 0 0 15px rgba(255, 0, 85, 0.3);
+        }
+
+        .item.active {
+            background: rgba(255, 0, 85, 0.1);
+            border-left-width: 6px;
+            box-shadow: 0 0 20px rgba(255, 0, 85, 0.4);
+        }
+
+        .item h3 {
+            color: #fff;
+            margin-bottom: 5px;
+            font-size: 1em;
+            text-shadow: 0 0 5px rgba(255, 0, 85, 0.3);
+        }
+
+        .item p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9em;
+            display: none;
+        }
+
+        .item.active p {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .detail-panel {
+            background: rgba(20, 20, 20, 0.8);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(255, 0, 85, 0.3);
+            margin-top: 20px;
+            display: none;
+            border: 1px solid rgba(255, 0, 85, 0.2);
+            position: relative;
+        }
+
+        .detail-panel::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(255, 0, 85, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .detail-panel.active {
+            display: block;
+            animation: slideUp 0.5s ease;
+        }
+
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 0, 85, 0.3);
+        }
+
+        .detail-title {
+            color: #fff;
+            font-size: 1.6em;
+            text-shadow: 0 0 10px rgba(255, 0, 85, 0.5);
+        }
+
+        .detail-category {
+            background: #ff0055;
+            color: #000;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(255, 0, 85, 0.5);
+        }
+
+        .detail-content {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.8;
+        }
+
+        .detail-examples {
+            background: rgba(30, 30, 30, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 1px solid rgba(255, 0, 85, 0.1);
+        }
+
+        .detail-examples h4 {
+            color: #fff;
+            margin-bottom: 10px;
+            text-shadow: 0 0 5px rgba(255, 0, 85, 0.3);
+        }
+
+        .detail-examples ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .detail-examples li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 0, 85, 0.1);
+            position: relative;
+            padding-left: 20px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .detail-examples li:before {
+            content: "■";
+            color: #ff0055;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+            text-shadow: 0 0 5px rgba(255, 0, 85, 0.5);
+        }
+
+        .connections {
+            position: relative;
+            height: 100px;
+            margin: 30px 0;
+        }
+
+        .connection {
+            position: absolute;
+            height: 3px;
+            background: #ff0055;
+            opacity: 0.6;
+            box-shadow: 0 0 10px rgba(255, 0, 85, 0.5);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+            box-shadow: 0 0 5px rgba(255, 0, 85, 0.5);
+        }
+
+        /* Animation pour les éléments actifs */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 0, 85, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 0, 85, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 0, 85, 0); }
+        }
+
+        .item.active {
+            animation: pulse 2s infinite;
+        }
+
+        /* Effet de particules */
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            opacity: 0;
+            background: #ff0055;
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        @keyframes particleAnimation {
+            0% {
+                transform: translate(0, 0);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--x), var(--y));
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Les Différents Aspects et Formes de Violences</h1>
+            <p class="subtitle">Diagramme interactif - Cliquez sur les éléments pour explorer les détails</p>
+        </header>
+
+        <div class="diagram-container">
+            <!-- Colonne Nature -->
+            <div class="category category-nature">
+                <h2>🔍 Par Nature</h2>
+                <div class="items-grid">
+                    <div class="item" data-id="physique" data-category="Nature">
+                        <h3>Violence Physique</h3>
+                        <p>Atteinte à l'intégrité corporelle : coups, blessures, privation de soins...</p>
+                    </div>
+                    <div class="item" data-id="psychologique" data-category="Nature">
+                        <h3>Violence Psychologique</h3>
+                        <p>Dénigrement, humiliation, contrôle, manipulation, isolement...</p>
+                    </div>
+                    <div class="item" data-id="verbale" data-category="Nature">
+                        <h3>Violence Verbale</h3>
+                        <p>Cris, insultes, menaces, remarques dévalorisantes...</p>
+                    </div>
+                    <div class="item" data-id="sexuelle" data-category="Nature">
+                        <h3>Violence Sexuelle</h3>
+                        <p>Actes sexuels non consentis, harcèlement, agression...</p>
+                    </div>
+                    <div class="item" data-id="economique" data-category="Nature">
+                        <h3>Violence Économique</h3>
+                        <p>Contrôle des ressources, interdiction de travailler...</p>
+                    </div>
+                    <div class="item" data-id="administrative" data-category="Nature">
+                        <h3>Violence Administrative</h3>
+                        <p>Utilisation des procédures pour harceler, documents cachés...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Colonne Contexte -->
+            <div class="category category-context">
+                <h2>🏛️ Par Contexte</h2>
+                <div class="items-grid">
+                    <div class="item" data-id="familiale" data-category="Contexte">
+                        <h3>Violence Intrafamiliale</h3>
+                        <p>Au sein de la famille : conjugale, enfant, personne âgée...</p>
+                    </div>
+                    <div class="item" data-id="institutionnelle" data-category="Contexte">
+                        <h3>Violence Institutionnelle</h3>
+                        <p>Ehpad, hôpitaux, prisons, établissements scolaires...</p>
+                    </div>
+                    <div class="item" data-id="scolaire" data-category="Contexte">
+                        <h3>Violence Scolaire</h3>
+                        <p>Harcèlement entre élèves, cyberharcèlement...</p>
+                    </div>
+                    <div class="item" data-id="travail" data-category="Contexte">
+                        <h3>Violence au Travail</h3>
+                        <p>Harcèlement moral, sexuel, burn-out, management abusif...</p>
+                    </div>
+                    <div class="item" data-id="communautaire" data-category="Contexte">
+                        <h3>Violence Communautaire</h3>
+                        <p>Racisme, homophobie, violences urbaines...</p>
+                    </div>
+                    <div class="item" data-id="cyber" data-category="Contexte">
+                        <h3>Cyberviolence</h3>
+                        <p>Harcèlement en ligne, revenge porn, usurpation d'identité...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Colonne Visibilité -->
+            <div class="category category-visibility">
+                <h2>📊 Niveau de Visibilité</h2>
+                <div class="items-grid">
+                    <div class="item" data-id="directe" data-category="Visibilité">
+                        <h3>Violence Directe</h3>
+                        <p>Visible et identifiable : bagarre, insulte, acte précis...</p>
+                    </div>
+                    <div class="item" data-id="structurelle" data-category="Visibilité">
+                        <h3>Violence Structurelle</h3>
+                        <p>Systémique : pauvreté, inégalités d'accès aux soins...</p>
+                    </div>
+                    <div class="item" data-id="culturelle" data-category="Visibilité">
+                        <h3>Violence Culturelle</h3>
+                        <p>Justificative : traditions, croyances, stéréotypes...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel de détails -->
+        <div class="detail-panel" id="detailPanel">
+            <div class="detail-header">
+                <h2 class="detail-title" id="detailTitle">Sélectionnez un type de violence</h2>
+                <span class="detail-category" id="detailCategory"></span>
+            </div>
+            <div class="detail-content" id="detailContent">
+                <p>Cliquez sur un élément du diagramme pour afficher ses caractéristiques détaillées, ses exemples concrets et ses impacts.</p>
+            </div>
+            <div class="detail-examples" id="detailExamples">
+                <h4>Exemples Concrets</h4>
+                <ul id="examplesList">
+                    <li>Sélectionnez un type de violence pour voir des exemples</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #ff0055;"></div>
+                <span>Nature de la violence</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #ff0055;"></div>
+                <span>Contexte de survenue</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #ff0055;"></div>
+                <span>Niveau de visibilité</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Données détaillées pour chaque type de violence
+        const violenceData = {
+            // Nature
+            'physique': {
+                title: 'Violence Physique',
+                category: 'Nature',
+                description: 'Tout acte qui porte atteinte à l\'intégrité corporelle d\'une personne. Cette forme de violence est souvent la plus visible et la plus facilement identifiable.',
+                examples: [
+                    'Coups, gifles, blessures',
+                    'Brûlures et mutilations',
+                    'Secousses violentes (syndrome du bébé secoué)',
+                    'Enfermement et privation de liberté',
+                    'Privation de soins médicaux',
+                    'Meurtre ou tentative de meurtre'
+                ]
+            },
+            'psychologique': {
+                title: 'Violence Psychologique',
+                category: 'Nature',
+                description: 'Violence souvent invisible mais extrêmement destructrice qui attaque l\'estime de soi, la dignité et l\'équilibre mental de la victime.',
+                examples: [
+                    'Dénigrement et humiliation constante',
+                    'Contrôle et isolement social',
+                    'Jalousie excessive et surveillance',
+                    'Menaces et chantage',
+                    'Manipulation et gaslighting',
+                    'Culpabilisation systématique'
+                ]
+            },
+            'verbale': {
+                title: 'Violence Verbale',
+                category: 'Nature',
+                description: 'Principal vecteur de la violence psychologique, elle utilise la parole comme arme pour blesser et déstabiliser la victime.',
+                examples: [
+                    'Cris et hurlements',
+                    'Insultes et injures',
+                    'Remarques dévalorisantes',
+                    'Sarcasmes et moqueries',
+                    'Menaces verbales',
+                    'Critiques destructives'
+                ]
+            },
+            'sexuelle': {
+                title: 'Violence Sexuelle',
+                category: 'Nature',
+                description: 'Tout acte à connotation sexuelle imposé à une personne sans son consentement libre et éclairé.',
+                examples: [
+                    'Viol et agression sexuelle',
+                    'Harcèlement sexuel',
+                    'Exhibitionnisme',
+                    'Prostitution forcée',
+                    'Mutilations génitales',
+                    'Mariage forcé'
+                ]
+            },
+            'economique': {
+                title: 'Violence Économique',
+                category: 'Nature',
+                description: 'Contrôle de l\'accès aux ressources financières pour maintenir une personne dans un état de dépendance et l\'empêcher de partir.',
+                examples: [
+                    'Confiscation des revenus',
+                    'Interdiction de travailler',
+                    'Privation de biens essentiels',
+                    'Dilapidation de l\'argent du foyer',
+                    'Endettement forcé',
+                    'Contrôle des dépenses'
+                ]
+            },
+            'administrative': {
+                title: 'Violence Administrative',
+                category: 'Nature',
+                description: 'Utilisation des procédures administratives ou juridiques comme une arme pour harceler et épuiser une personne.',
+                examples: [
+                    'Cacher des documents d\'identité',
+                    'Refuser de signer des papiers importants',
+                    'Procédures judiciaires abusives',
+                    'Non-respect des décisions de justice',
+                    'Entraves aux démarches administratives'
+                ]
+            },
+
+            // Contexte
+            'familiale': {
+                title: 'Violence Intrafamiliale',
+                category: 'Contexte',
+                description: 'Violences qui se produisent au sein de la cellule familiale, souvent dans un cadre de relations de pouvoir inégales.',
+                examples: [
+                    'Violence conjugale entre partenaires',
+                    'Maltraitance des enfants',
+                    'Violence envers les personnes âgées',
+                    'Violences entre frères et sœurs',
+                    'Inceste et abus sexuels familiaux'
+                ]
+            },
+            'institutionnelle': {
+                title: 'Violence Institutionnelle',
+                category: 'Contexte',
+                description: 'Violences exercées au sein d\'institutions par des professionnels envers les personnes dont ils ont la charge.',
+                examples: [
+                    'Maltraitance en Ehpad',
+                    'Violences en hôpital psychiatrique',
+                    'Abus dans les établissements pénitentiaires',
+                    'Mauvais traitements dans les foyers',
+                    'Négligence dans les institutions médicales'
+                ]
+            },
+            'scolaire': {
+                title: 'Violence Scolaire',
+                category: 'Contexte',
+                description: 'Violences qui se produisent dans le cadre scolaire, souvent entre élèves mais pouvant aussi impliquer le personnel éducatif.',
+                examples: [
+                    'Harcèlement scolaire entre élèves',
+                    'Cyberharcèlement',
+                    'Violences physiques dans la cour',
+                    'Discrimination et exclusion',
+                    'Pressions psychologiques'
+                ]
+            },
+            'travail': {
+                title: 'Violence au Travail',
+                category: 'Contexte',
+                description: 'Violences survenant dans le milieu professionnel, pouvant provenir de collègues, de la hiérarchie ou de l\'organisation elle-même.',
+                examples: [
+                    'Harcèlement moral',
+                    'Harcèlement sexuel',
+                    'Stress post-traumatique professionnel',
+                    'Burn-out induit par le management',
+                    'Pressions et intimidations'
+                ]
+            },
+            'communautaire': {
+                title: 'Violence Communautaire',
+                category: 'Contexte',
+                description: 'Violences qui se produisent au sein d\'une communauté ou entre différentes communautés.',
+                examples: [
+                    'Racisme et xénophobie',
+                    'Homophobie et transphobie',
+                    'Antisémitisme et islamophobie',
+                    'Violences urbaines et guerres de gangs',
+                    'Discriminations ethniques'
+                ]
+            },
+            'cyber': {
+                title: 'Cyberviolence',
+                category: 'Contexte',
+                description: 'Violences exercées via les technologies numériques et les réseaux sociaux, avec un potentiel de diffusion très large.',
+                examples: [
+                    'Cyberharcèlement',
+                    'Revenge porn',
+                    'Propagation de rumeurs',
+                    'Usurpation d\'identité',
+                    'Chantage en ligne',
+                    'Doxing (divulgation de données personnelles)'
+                ]
+            },
+
+            // Visibilité
+            'directe': {
+                title: 'Violence Directe',
+                category: 'Visibilité',
+                description: 'Forme visible et manifeste de la violence, avec un acte précis et un auteur identifiable.',
+                examples: [
+                    'Bagarre et agression physique',
+                    'Insultes et menaces verbales',
+                    'Actes de vandalisme',
+                    'Agression sexuelle',
+                    'Meurtre'
+                ]
+            },
+            'structurelle': {
+                title: 'Violence Structurelle',
+                category: 'Visibilité',
+                description: 'Violence indirecte inscrite dans la structure de la société, créant des inégalités systémiques empêchant certains groupes de satisfaire leurs besoins.',
+                examples: [
+                    'Pauvreté et précarité',
+                    'Inégalités d\'accès aux soins',
+                    'Discrimination à l\'embauche',
+                    'Inégalités scolaires',
+                    'Justice inéquitable'
+                ]
+            },
+            'culturelle': {
+                title: 'Violence Culturelle',
+                category: 'Visibilité',
+                description: 'Aspects de la culture qui servent à justifier ou normaliser la violence directe et structurelle.',
+                examples: [
+                    'Croyances sexistes ("un homme ça ne pleure pas")',
+                    'Stéréotypes racistes',
+                    'Traditions comme l\'excision',
+                    'Normes sociales oppressives',
+                    'Idéologies discriminatoires'
+                ]
+            }
+        };
+
+        // Gestion des clics
+        document.querySelectorAll('.item').forEach(item => {
+            item.addEventListener('click', function() {
+                // Retirer la classe active de tous les items
+                document.querySelectorAll('.item').forEach(i => {
+                    i.classList.remove('active');
+                });
+                
+                // Ajouter la classe active à l'item cliqué
+                this.classList.add('active');
+                
+                // Créer un effet de particules
+                createParticles(event);
+                
+                // Afficher les détails
+                const violenceId = this.getAttribute('data-id');
+                const violence = violenceData[violenceId];
+                
+                if (violence) {
+                    document.getElementById('detailTitle').textContent = violence.title;
+                    document.getElementById('detailCategory').textContent = violence.category;
+                    document.getElementById('detailContent').innerHTML = `<p>${violence.description}</p>`;
+                    
+                    const examplesList = document.getElementById('examplesList');
+                    examplesList.innerHTML = '';
+                    violence.examples.forEach(example => {
+                        const li = document.createElement('li');
+                        li.textContent = example;
+                        examplesList.appendChild(li);
+                    });
+                    
+                    document.getElementById('detailPanel').classList.add('active');
+                }
+            });
+        });
+
+        // Fonction pour créer des particules
+        function createParticles(event) {
+            for (let i = 0; i < 10; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Taille aléatoire
+                const size = Math.random() * 5 + 2;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // Position de départ (position du clic)
+                particle.style.left = `${event.clientX}px`;
+                particle.style.top = `${event.clientY}px`;
+                
+                // Direction aléatoire
+                const x = (Math.random() - 0.5) * 100;
+                const y = (Math.random() - 0.5) * 100;
+                particle.style.setProperty('--x', `${x}px`);
+                particle.style.setProperty('--y', `${y}px`);
+                
+                // Animation
+                particle.style.animation = 'particleAnimation 1s ease-out forwards';
+                
+                document.body.appendChild(particle);
+                
+                // Supprimer la particule après l'animation
+                setTimeout(() => {
+                    particle.remove();
+                }, 1000);
+            }
+        }
+
+        // Activer le premier item par défaut
+        document.querySelector('.item').click();
+    </script>
+</body>
+</html>
