@@ -1,0 +1,1570 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Violence Analytics Dashboard - Premium</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #ff0055;
+            --secondary: #00ffcc;
+            --accent: #ffaa00;
+            --dark: #0a0a0a;
+            --darker: #050505;
+            --light: #ffffff;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--darker);
+            color: var(--light);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Background animé */
+        .bg-animation {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -2;
+            background: linear-gradient(45deg, #0a0a0a, #1a0033, #0a0a0a);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Particules flottantes */
+        .particles {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--primary);
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Navigation premium */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 1000;
+            padding: 15px 0;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-stats {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Filtres interactifs */
+        .filters-container {
+            margin: 100px auto 30px;
+            max-width: 1400px;
+            padding: 0 20px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .filter-btn {
+            padding: 12px 25px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            color: var(--light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        .filter-btn:hover {
+            background: rgba(255, 0, 85, 0.1);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 0, 85, 0.3);
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: var(--dark);
+            font-weight: bold;
+        }
+
+        /* Search bar */
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 50px;
+            color: var(--light);
+            font-size: 1rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(255, 0, 85, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+        }
+
+        /* Main container */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px 50px;
+        }
+
+        /* Stats cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 0, 85, 0.2);
+            border-color: var(--primary);
+        }
+
+        .stat-card-icon {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-card-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-card-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .stat-card-change {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .stat-card-change.positive {
+            background: rgba(0, 255, 204, 0.2);
+            color: var(--secondary);
+        }
+
+        .stat-card-change.negative {
+            background: rgba(255, 0, 85, 0.2);
+            color: var(--primary);
+        }
+
+        /* Diagram container */
+        .diagram-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 1024px) {
+            .diagram-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .category {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 0, 85, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .category:hover::after {
+            opacity: 1;
+        }
+
+        .category:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(255, 0, 85, 0.2);
+            border-color: var(--primary);
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--glass-border);
+        }
+
+        .category-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            box-shadow: 0 5px 20px rgba(255, 0, 85, 0.3);
+        }
+
+        .category-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .category-count {
+            margin-left: auto;
+            background: rgba(255, 0, 85, 0.2);
+            color: var(--primary);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .items-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .item {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--primary), var(--secondary));
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .item:hover::before {
+            transform: scaleY(1);
+        }
+
+        .item:hover {
+            background: rgba(255, 0, 85, 0.05);
+            transform: translateX(5px);
+            border-color: var(--primary);
+        }
+
+        .item.active {
+            background: rgba(255, 0, 85, 0.1);
+            border-color: var(--primary);
+            box-shadow: 0 5px 20px rgba(255, 0, 85, 0.2);
+        }
+
+        .item-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .item-title {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .item-badge {
+            background: var(--primary);
+            color: var(--dark);
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .item-description {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            display: none;
+        }
+
+        .item.active .item-description {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .item-stats {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .item.active .item-stats {
+            display: flex;
+        }
+
+        .item-stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Detail panel */
+        .detail-panel {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            margin-top: 30px;
+            display: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .detail-panel.active {
+            display: block;
+            animation: slideUp 0.5s ease;
+        }
+
+        .detail-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--glass-border);
+        }
+
+        .detail-title {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .detail-category {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: var(--dark);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .detail-content {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.8;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .detail-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
+
+        .detail-examples {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 25px;
+        }
+
+        .detail-examples h4 {
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .examples-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .example-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 15px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .example-item:hover {
+            background: rgba(255, 0, 85, 0.1);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .example-icon {
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        /* Action buttons */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: var(--dark);
+        }
+
+        .action-btn.secondary {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            color: var(--light);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 0, 85, 0.3);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 0, 85, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 0, 85, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 0, 85, 0); }
+        }
+
+        /* Loading animation */
+        .loading {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--glass-border);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-stats {
+                display: none;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .detail-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+    <div class="particles" id="particles"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i>
+                Violence Analytics Pro
+            </div>
+            <div class="nav-stats">
+                <div class="stat-item">
+                    <span class="stat-value" id="totalCases">2,847</span>
+                    <span class="stat-label">Cas analysés</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="activeUsers">523</span>
+                    <span class="stat-label">Utilisateurs actifs</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="successRate">94%</span>
+                    <span class="stat-label">Taux de réussite</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Filtres -->
+    <div class="filters-container">
+        <div class="search-container">
+            <input type="text" class="search-input" id="searchInput" placeholder="Rechercher un type de violence...">
+            <i class="fas fa-search search-icon"></i>
+        </div>
+        
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">
+                <i class="fas fa-globe"></i> Tout afficher
+            </button>
+            <button class="filter-btn" data-filter="nature">
+                <i class="fas fa-dna"></i> Par nature
+            </button>
+            <button class="filter-btn" data-filter="context">
+                <i class="fas fa-building"></i> Par contexte
+            </button>
+            <button class="filter-btn" data-filter="visibility">
+                <i class="fas fa-eye"></i> Par visibilité
+            </button>
+            <button class="filter-btn" data-filter="critical">
+                <i class="fas fa-exclamation-triangle"></i> Critique
+            </button>
+            <button class="filter-btn" data-filter="trending">
+                <i class="fas fa-fire"></i> Tendance
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="main-container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-card-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-card-value">+24%</div>
+                <div class="stat-card-label">Augmentation this month</div>
+                <span class="stat-card-change positive">
+                    <i class="fas fa-arrow-up"></i> 12%
+                </span>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-card-value">1,429</div>
+                <div class="stat-card-label">Victimes aidées</div>
+                <span class="stat-card-change positive">
+                    <i class="fas fa-arrow-up"></i> 8%
+                </span>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-card-value">2.3h</div>
+                <div class="stat-card-label">Temps de réponse moyen</div>
+                <span class="stat-card-change negative">
+                    <i class="fas fa-arrow-down"></i> 15%
+                </span>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="stat-card-value">4.8/5</div>
+                <div class="stat-card-label">Satisfaction client</div>
+                <span class="stat-card-change positive">
+                    <i class="fas fa-arrow-up"></i> 0.3
+                </span>
+            </div>
+        </div>
+
+        <!-- Diagram Container -->
+        <div class="diagram-container">
+            <!-- Colonne Nature -->
+            <div class="category" data-category="nature">
+                <div class="category-header">
+                    <div class="category-icon">
+                        <i class="fas fa-dna"></i>
+                    </div>
+                    <div>
+                        <div class="category-title">Par Nature</div>
+                        <div style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">Types fondamentaux</div>
+                    </div>
+                    <span class="category-count">6</span>
+                </div>
+                <div class="items-grid">
+                    <div class="item" data-id="physique" data-category="Nature">
+                        <div class="item-header">
+                            <span class="item-title">Violence Physique</span>
+                            <span class="item-badge">Élevé</span>
+                        </div>
+                        <p class="item-description">Atteinte directe à l'intégrité corporelle avec blessures visibles</p>
+                        <div class="item-stats">
+                            <span class="item-stat"><i class="fas fa-fire"></i> 892 cas</span>
+                            <span class="item-stat"><i class="fas fa-chart-line"></i> +15%</span>
+                        </div>
+                    </div>
+                    <div class="item" data-id="psychologique" data-category="Nature">
+                        <div class="item-header">
+                            <span class="item-title">Violence Psychologique</span>
+                            <span class="item-badge">Critique</span>
+                        </div>
+                        <p class="item-description">Destruction mentale par manipulation et contrôle</p>
+                        <div class="item-stats">
+                            <span class="item-stat"><i class="fas fa-fire"></i> 1,234 cas</span>
+                            <span class="item-stat"><i class="fas fa-chart-line"></i> +22%</span>
+                        </div>
+                    </div>
+                    <div class="item" data-id="verbale" data-category="Nature">
+                        <div class="item-header">
+                            <span class="item-title">Violence Verbale</span>
+                            <span class="item-badge">Moyen</span>
+                        </div>
+                        <p class="item-description">Agression par les mots et menaces constantes</p>
+                        <div class="item-stats">
+                            <span class="item-stat"><i class="fas fa-fire"></i> 756 cas</span>
+                            <span class="item-stat"><i class="fas fa-chart-line"></i> +8%</span>
+                        </div>
+                    </div>
+                    <div class="item" data-id="sexuelle" data-category="Nature">
+                        <div class="item-header">
+                            <span class="item-title">Violence Sexuelle</span>
+                            <span class="item-badge">Urgent</span>
+                        </div>
+                        <p class="item-description">Actes sexuels imposés sans consentement</p>
+                        <div class="item-stats">
+                            <span class="item-stat"><i class="fas fa-fire"></i> 423 cas</span>
+                            <span class="item-stat"><i class="fas fa-chart-line"></i> +18%</span>
+                        </div>
+                    </div>
+                    <div class="item" data-id="economique" data-category="Nature">
+                        <div class="item-header">
+                            <span class="item-title">Violence Économique</span>
+                            <span class="item-badge">Croissant</span>
+                        </div>
+                        <p class="item-description">Contrôle financier pour maintenir la dépendance</p>
+                        <div class="item-stats">
+                            <span class="item-stat"><i class="fas fa-fire"></i> 312 cas</span>
+                            <span class="item-stat"><i class="fas fa-chart-line"></i> +31%</span>
+                        </div>
+                    </div>
+                    <div class="item" data-id="administrative" data-category="Nature">
+                        <div class="item-header">
+                            <span class="item-title">Violence Administrative</span>
+                            <span class="item-badge">Émergent</span>
+                        </div>
+                        <p class="item-description">Utilisation abusive des procédures légales</p>
+                        <div class="item-stats">
+                            <span class="item-stat"><i class="fas fa-fire"></i> 198 cas</span>
+                            <span class="item-stat"><i class="fas fa-chart-line"></i> +45%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Colonne Contexte -->
+            <div class="category" data-category="context">
+                <div class="category-header">
+                    <div class="category-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <div>
+                        <div class="category-title">Par Contexte</div>
+                        <div style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">Environnements à risque</div>
+                    </div>
+                    <span class="category-count">6</span>
+                </div>
+                <div class="items-grid">
+                    <div class="item" data-id="familiale" data-category="Contexte">
+                        <div class="item-header">
+                            <span class="item-title">Violence Intrafamiliale</span>
+                            <span class="item-badge">Élevé</span>
+                        </div>
+                        <p class="item-description">Au sein du foyer, souvent invisible et tabou</p>
+                        <div class="item-stats">
+                            <span class="item-stat"><i class="fas fa-fire"></i> 945 cas</span>
+                            <span class="item-stat"><i class="fas fa-chart-line"></i> +12%</span>
+                        </div>
+                    </div>
+                    <div class="item" data-id="institutionnelle" data-category="Contexte">
+                        <div class="item-header">
+                            <span class="item-title">Violence Institutionnelle</span>
+                            <span class="item-badge">Préoccupant</span>
+                        </div>
+                        <p class="item-description">Dans les structures censées protéger</p>
+                        <div class="item-stats">
+                            <span class="item-stat"><i class="fas fa-fire"></i> 367 cas</span>
+                            <span class="item-stat"><i class="fas fa-chart-line"></i> +28%</span>
+                        </div>
+                    </div>
+                    <div class="item" data-id="scolaire" data-category="Contexte">
+                        <div class="item-header">
+                            <span class="item-title">Violence Scolaire</span>
+                            <span class="item-badge">Critique</span>
+                        </div>
+                        <p class="item-description">Harcèlement et cyberharcèlement chez les jeunes</p>
+                        <div class="item-stats">
+                            <span class="item-stat"><i class="fas fa-fire"></i> 823 cas</span>
+                            <span class="item-stat"><i class="fas fa-chart-line"></i> +35%</span>
+                        </div>
+                    </div>
+                    <div class="item" data-id="travail" data-category="Contexte">
+                        <div class="item-header">
+                            <span class="item-title">Violence au Travail</span>
+                            <span class="item-badge">En hausse</span>
+                        </div>
+                        <p class="item-description">Harcèlement moral et burn-out professionnel</p>
+                        <div class="item-stats">
+                            <span class="item-stat"><i class="fas fa-fire"></i> 612 cas</span>
+                            <span class="item-stat"><i class="fas fa-chart-line"></i> +19%</span>
+                        </div>
+                    </div>
+                    <div class="item" data-id="communautaire" data-category="Contexte">
+                        <div class="item-header">
+                            <span class="item-title">Violence Communautaire</span>
+                            <span class="item-badge">Stable</span>
+                        </div>
+                        <p class="item-description">Discriminations et tensions intercommunautaires</p>
+                        <div class="item-stats">
+                            <span class="item-stat"><i class="fas fa-fire"></i> 434 cas</span>
+                            <span class="item-stat"><i class="fas fa-chart-line"></i> +5%</span>
+                        </div>
+                    </div>
+                    <div class="item" data-id="cyber" data-category="Contexte">
+                        <div class="item-header">
+                            <span class="item-title">Cyberviolence</span>
+                            <span class="item-badge">Explosif</span>
+                        </div>
+                        <p class="item-description">Violence numérique et harcèlement en ligne</p>
+                        <div class="item-stats">
+                            <span class="item-stat"><i class="fas fa-fire"></i> 567 cas</span>
+                            <span class="item-stat"><i class="fas fa-chart-line"></i> +67%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Colonne Visibilité -->
+            <div class="category" data-category="visibility">
+                <div class="category-header">
+                    <div class="category-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div>
+                        <div class="category-title">Niveau de Visibilité</div>
+                        <div style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">Perception et détection</div>
+                    </div>
+                    <span class="category-count">3</span>
+                </div>
+                <div class="items-grid">
+                    <div class="item" data-id="directe" data-category="Visibilité">
+                        <div class="item-header">
+                            <span class="item-title">Violence Directe</span>
+                            <span class="item-badge">Visible</span>
+                        </div>
+                        <p class="item-description">Manifeste et immédiatement identifiable</p>
+                        <div class="item-stats">
+                            <span class="item-stat"><i class="fas fa-fire"></i> 1,234 cas</span>
+                            <span class="item-stat"><i class="fas fa-chart-line"></i> +10%</span>
+                        </div>
+                    </div>
+                    <div class="item" data-id="structurelle" data-category="Visibilité">
+                        <div class="item-header">
+                            <span class="item-title">Violence Structurelle</span>
+                            <span class="item-badge">Systémique</span>
+                        </div>
+                        <p class="item-description">Inscriptions dans les structures sociales</p>
+                        <div class="item-stats">
+                            <span class="item-stat"><i class="fas fa-fire"></i> 2,456 cas</span>
+                            <span class="item-stat"><i class="fas fa-chart-line"></i> +18%</span>
+                        </div>
+                    </div>
+                    <div class="item" data-id="culturelle" data-category="Visibilité">
+                        <div class="item-header">
+                            <span class="item-title">Violence Culturelle</span>
+                            <span class="item-badge">Normalisée</span>
+                        </div>
+                        <p class="item-description">Justifiée par les normes culturelles</p>
+                        <div class="item-stats">
+                            <span class="item-stat"><i class="fas fa-fire"></i> 987 cas</span>
+                            <span class="item-stat"><i class="fas fa-chart-line"></i> +7%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detail Panel -->
+        <div class="detail-panel" id="detailPanel">
+            <div class="detail-header">
+                <h2 class="detail-title" id="detailTitle">Sélectionnez un type de violence</h2>
+                <span class="detail-category" id="detailCategory">Analyse</span>
+            </div>
+            <div class="detail-content" id="detailContent">
+                <p>Cliquez sur un élément pour découvrir l'analyse complète avec des données en temps réel, des tendances et des recommandations personnalisées.</p>
+            </div>
+            
+            <div class="detail-metrics" id="detailMetrics">
+                <!-- Metrics will be inserted here -->
+            </div>
+            
+            <div class="detail-examples">
+                <h4>
+                    <i class="fas fa-list-ul"></i>
+                    Exemples et Cas Concrets
+                </h4>
+                <div class="examples-grid" id="examplesGrid">
+                    <!-- Examples will be inserted here -->
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="action-btn primary">
+                    <i class="fas fa-download"></i>
+                    Télécharger le rapport complet
+                </button>
+                <button class="action-btn secondary">
+                    <i class="fas fa-share-alt"></i>
+                    Partager l'analyse
+                </button>
+                <button class="action-btn secondary">
+                    <i class="fas fa-bell"></i>
+                    Activer les alertes
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <script>
+        // Enhanced violence data with metrics
+        const violenceData = {
+            'physique': {
+                title: 'Violence Physique',
+                category: 'Nature',
+                description: 'Analyse approfondie de la violence physique révèle des tendances préoccupantes avec une augmentation de 15% cette année. Les zones urbaines montrent une concentration plus élevée avec des pics nocturnes.',
+                metrics: [
+                    { value: '892', label: 'Cas cette année' },
+                    { value: '67%', label: 'Femmes victimes' },
+                    { value: '23', label: 'Âge moyen' },
+                    { value: '2.3h', label: 'Temps intervention' }
+                ],
+                examples: [
+                    { icon: 'fas fa-fist-raised', text: 'Agressions physiques dans l\'espace public' },
+                    { icon: 'fas fa-home', text: 'Violence domestique et conjugale' },
+                    { icon: 'fas fa-child', text: 'Maltraitance infantile' },
+                    { icon: 'fas fa-user-injured', text: 'Violences dans les établissements' }
+                ]
+            },
+            'psychologique': {
+                title: 'Violence Psychologique',
+                category: 'Nature',
+                description: 'La violence psychologique représente 43% des cas signalés. Souvent invisible, elle laisse des séquelles profondes et durables. Les réseaux sociaux amplifient ce phénomène.',
+                metrics: [
+                    { value: '1,234', label: 'Cas documentés' },
+                    { value: '78%', label: 'Sous-déclaration' },
+                    { value: '6 mois', label: 'Durée moyenne avant aide' },
+                    { value: '94%', label: 'Impact sur santé mentale' }
+                ],
+                examples: [
+                    { icon: 'fas fa-brain', text: 'Manipulation mentale et gaslighting' },
+                    { icon: 'fas fa-lock', text: 'Isolement social forcé' },
+                    { icon: 'fas fa-comments', text: 'Harcèlement verbal constant' },
+                    { icon: 'fas fa-theater-masks', text: 'Chantage émotionnel' }
+                ]
+            },
+            'verbale': {
+                title: 'Violence Verbale',
+                category: 'Nature',
+                description: 'Les agressions verbales sont souvent le prélude à des violences plus graves. 65% des cas évoluent vers des formes physiques si non traitées.',
+                metrics: [
+                    { value: '756', label: 'Signalements' },
+                    { value: '42%', label: 'En milieu scolaire' },
+                    { value: '3x', label: 'Plus fréquent en ligne' },
+                    { value: '89%', label: 'Impact sur confiance' }
+                ],
+                examples: [
+                    { icon: 'fas fa-microphone', text: 'Cris et hurlements' },
+                    { icon: 'fas fa-comment-slash', text: 'Insultes et injures' },
+                    { icon: 'fas fa-exclamation-triangle', text: 'Menaces et intimidations' },
+                    { icon: 'fas fa-laugh-beam', text: 'Moqueries humiliantes' }
+                ]
+            },
+            'sexuelle': {
+                title: 'Violence Sexuelle',
+                category: 'Nature',
+                description: 'Urgence nationale avec une augmentation alarmante. 80% des victimes connaissent leur agresseur. La prévention et l\'éducation sont prioritaires.',
+                metrics: [
+                    { value: '423', label: 'Cas confirmés' },
+                    { value: '80%', label: 'Agresseur connu' },
+                    { value: '2 ans', label: 'Délai moyen dénonciation' },
+                    { value: '67%', label: 'Victimes mineures' }
+                ],
+                examples: [
+                    { icon: 'fas fa-user-shield', text: 'Harcèlement sexuel' },
+                    { icon: 'fas fa-ban', text: 'Agression sexuelle' },
+                    { icon: 'fas fa-camera', text: 'Cyberharçèlement sexuel' },
+                    { icon: 'fas fa-ring', text: 'Mariage forcé' }
+                ]
+            },
+            'economique': {
+                title: 'Violence Économique',
+                category: 'Nature',
+                description: 'Forme insidieuse de violence en pleine expansion (+31%). Le contrôle financier est un outil puissant de domination et d\'isolement.',
+                metrics: [
+                    { value: '312', label: 'Cas identifiés' },
+                    { value: '71%', label: 'Femmes concernées' },
+                    { value: '45%', label: 'Avec violence physique' },
+                    { value: '3.5 ans', label: 'Durée moyenne' }
+                ],
+                examples: [
+                    { icon: 'fas fa-wallet', text: 'Contrôle des finances' },
+                    { icon: 'fas fa-briefcase', text: 'Interdiction de travailler' },
+                    { icon: 'fas fa-credit-card', text: 'Détournement de revenus' },
+                    { icon: 'fas fa-home', text: 'Exploitation immobilière' }
+                ]
+            },
+            'administrative': {
+                title: 'Violence Administrative',
+                category: 'Nature',
+                description: 'Nouvelle forme de violence utilisant les procédures légales comme arme. En augmentation de 45%, particulièrement dans les conflits familiaux.',
+                metrics: [
+                    { value: '198', label: 'Cas traités' },
+                    { value: '63%', label: 'Conflits familiaux' },
+                    { value: '18 mois', label: 'Durée moyenne procédure' },
+                    { value: '€15k', label: 'Coût moyen par victime' }
+                ],
+                examples: [
+                    { icon: 'fas fa-file-contract', text: 'Procédures judiciaires abusives' },
+                    { icon: 'fas fa-id-card', text: 'Rétention de documents' },
+                    { icon: 'fas fa-gavel', text: 'Utilisation malveillante du droit' },
+                    { icon: 'fas fa-envelope', text: 'Harcèlement postal' }
+                ]
+            },
+            'familiale': {
+                title: 'Violence Intrafamiliale',
+                category: 'Contexte',
+                description: 'Epicentre de nombreuses violences. Le confinement a exacerbé ce phénomène. Les enfants sont particulièrement vulnérables.',
+                metrics: [
+                    { value: '945', label: 'Interventions' },
+                    { value: '58%', label: 'Enfants témoins' },
+                    { value: '72%', label: 'Sous-déclaration' },
+                    { value: '7 ans', label: 'Durée moyenne avant aide' }
+                ],
+                examples: [
+                    { icon: 'fas fa-home', text: 'Violence conjugale' },
+                    { icon: 'fas fa-child', text: 'Maltraitance infantile' },
+                    { icon: 'fas fa-user-friends', text: 'Violence entre frères et sœurs' },
+                    { icon: 'fas fa-users', text: 'Violence envers personnes âgées' }
+                ]
+            },
+            'institutionnelle': {
+                title: 'Violence Institutionnelle',
+                category: 'Contexte',
+                description: 'Paradoxe inquiétant : les lieux de protection deviennent sources de violence. Signalements en hausse de 28% cette année.',
+                metrics: [
+                    { value: '367', label: 'Cas signalés' },
+                    { value: '45%', label: 'En Ehpad' },
+                    { value: '32%', label: 'En milieu scolaire' },
+                    { value: '23%', label: 'En milieu médical' }
+                ],
+                examples: [
+                    { icon: 'fas fa-hospital', text: 'Violences en établissements de santé' },
+                    { icon: 'fas fa-school', text: 'Abus dans les institutions éducatives' },
+                    { icon: 'fas fa-bed', text: 'Maltraitance en Ehpad' },
+                    { icon: 'fas fa-landmark', text: 'Violences administratives' }
+                ]
+            },
+            'scolaire': {
+                title: 'Violence Scolaire',
+                category: 'Contexte',
+                description: 'Phénomène explosif avec le numérique. 1 élève sur 10 concerné. Le cyberharcèlement étend la violence au-delà de l\'école.',
+                metrics: [
+                    { value: '823', label: 'Cas répertoriés' },
+                    { value: '35%', label: 'Cyberharcèlement' },
+                    { value: '12 ans', label: 'Âge moyen début' },
+                    { value: '67%', label: 'Impact sur résultats' }
+                ],
+                examples: [
+                    { icon: 'fas fa-graduation-cap', text: 'Harcèlement entre élèves' },
+                    { icon: 'fas fa-laptop', text: 'Cyberharcèlement 24/7' },
+                    { icon: 'fas fa-users-slash', text: 'Exclusion et rejet social' },
+                    { icon: 'fas fa-mobile-alt', text: 'Harcèlement via smartphones' }
+                ]
+            },
+            'travail': {
+                title: 'Violence au Travail',
+                category: 'Contexte',
+                description: 'Le burn-out et le harcèlement moral coûtent cher. Télétravail a modifié mais pas éliminé ces violences.',
+                metrics: [
+                    { value: '612', label: 'Dossiers ouverts' },
+                    { value: '43%', label: 'Harcèlement moral' },
+                    { value: '28%', label: 'Burn-out reconnus' },
+                    { value: '€45k', label: 'Coût par cas' }
+                ],
+                examples: [
+                    { icon: 'fas fa-briefcase', text: 'Harcèlement managérial' },
+                    { icon: 'fas fa-fire', text: 'Burn-out professionnel' },
+                    { icon: 'fas fa-comments', text: 'Pressions psychologiques' },
+                    { icon: 'fas fa-user-tie', text: 'Abus de pouvoir hiérarchique' }
+                ]
+            },
+            'communautaire': {
+                title: 'Violence Communautaire',
+                category: 'Contexte',
+                description: 'Tensions intercommunautaires en légère hausse. Les réseaux sociaux amplifient les discours haineux et les stéréotypes.',
+                metrics: [
+                    { value: '434', label: 'Incidents documentés' },
+                    { value: '56%', label: 'À caractère raciste' },
+                    { value: '31%', label: 'À caractère religieux' },
+                    { value: '13%', label: 'À caractère sexiste' }
+                ],
+                examples: [
+                    { icon: 'fas fa-fist-raised', text: 'Actes racistes' },
+                    { icon: 'fas fa-rainbow', text: 'Violences LGBTphobes' },
+                    { icon: 'fas fa-globe', text: 'Xénophobie' },
+                    { icon: 'fas fa-mosque', text: 'Islamophobie/Antisémitisme' }
+                ]
+            },
+            'cyber': {
+                title: 'Cyberviolence',
+                category: 'Contexte',
+                description: 'Explosion de 67% cette année. La violence numérique laisse des traces indélébiles et atteint des victimes de plus en plus jeunes.',
+                metrics: [
+                    { value: '567', label: 'Cas traités' },
+                    { value: '78%', label: 'Victimes mineures' },
+                    { value: '24/7', label: 'Exposition continue' },
+                    { value: '92%', label: 'Impact psychologique' }
+                ],
+                examples: [
+                    { icon: 'fas fa-comment', text: 'Harcèlement en ligne' },
+                    { icon: 'fas fa-camera', text: 'Revenge porn' },
+                    { icon: 'fas fa-user-secret', text: 'Usurpation d\'identité' },
+                    { icon: 'fas fa-database', text: 'Doxing et divulgation' }
+                ]
+            },
+            'directe': {
+                title: 'Violence Directe',
+                category: 'Visibilité',
+                description: 'Forme la plus visible mais souvent la pointe de l\'iceberg. 60% des cas de violence directe sont précédés de signaux faibles ignorés.',
+                metrics: [
+                    { value: '1,234', label: 'Cas observés' },
+                    { value: '45%', label: 'Signalements' },
+                    { value: '2h', label: 'Délai intervention' },
+                    { value: '78%', label: 'Prévention possible' }
+                ],
+                examples: [
+                    { icon: 'fas fa-hand-rock', text: 'Agression physique visible' },
+                    { icon: 'fas fa-microphone-alt', text: 'Insultes publiques' },
+                    { icon: 'fas fa-bolt', text: 'Actes de vandalisme' },
+                    { icon: 'fas fa-exclamation-circle', text: 'Menaces explicites' }
+                ]
+            },
+            'structurelle': {
+                title: 'Violence Structurelle',
+                category: 'Visibilité',
+                description: 'Invisible mais omniprésente. Crée des inégalités systémiques qui perpétuent les cycles de violence. Nécessite des politiques globales.',
+                metrics: [
+                    { value: '2,456', label: 'Cas estimés' },
+                    { value: '89%', label: 'Non reconnus' },
+                    { value: '3 générations', label: 'Impact moyen durée' },
+                    { value: '67%', label: 'Lié à la pauvreté' }
+                ],
+                examples: [
+                    { icon: 'fas fa-coins', text: 'Inégalités économiques' },
+                    { icon: 'fas fa-graduation-cap', text: 'Discrimination éducative' },
+                    { icon: 'fas fa-heartbeat', text: 'Inégalités d\'accès aux soins' },
+                    { icon: 'fas fa-balance-scale', text: 'Justice inéquitable' }
+                ]
+            },
+            'culturelle': {
+                title: 'Violence Culturelle',
+                category: 'Visibilité',
+                description: 'Normalisée par les traditions et croyances. Difficile à combattre car perçue comme "normale". Éducation et sensibilisation clés.',
+                metrics: [
+                    { value: '987', label: 'Pratiques identifiées' },
+                    { value: '45%', label: 'Traditionnelles' },
+                    { value: '34%', label: 'Religieuses' },
+                    { value: '21%', label: 'Sociales' }
+                ],
+                examples: [
+                    { icon: 'fas fa-venus-mars', text: 'Stéréotypes de genre' },
+                    { icon: 'fas fa-cut', text: 'Mutilations génitales' },
+                    { icon: 'fas fa-ring', text: 'Mariages forcés' },
+                    { icon: 'fas fa-theater-masks', text: 'Normes sociales oppressives' }
+                ]
+            }
+        };
+
+        // Initialize particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Filter functionality
+        let currentFilter = 'all';
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentFilter = this.dataset.filter;
+                filterItems();
+            });
+        });
+
+        function filterItems() {
+            const items = document.querySelectorAll('.item');
+            items.forEach(item => {
+                if (currentFilter === 'all') {
+                    item.style.display = 'block';
+                } else if (currentFilter === 'critical') {
+                    const badge = item.querySelector('.item-badge');
+                    item.style.display = (badge && (badge.textContent === 'Critique' || badge.textContent === 'Urgent')) ? 'block' : 'none';
+                } else if (currentFilter === 'trending') {
+                    const stats = item.querySelector('.item-stat:last-child');
+                    item.style.display = (stats && parseInt(stats.textContent) > 20) ? 'block' : 'none';
+                } else {
+                    const category = item.closest('.category').dataset.category;
+                    item.style.display = category === currentFilter ? 'block' : 'none';
+                }
+            });
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const items = document.querySelectorAll('.item');
+            
+            items.forEach(item => {
+                const title = item.querySelector('.item-title').textContent.toLowerCase();
+                const description = item.querySelector('.item-description').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+
+        // Item click handler with enhanced animations
+        document.querySelectorAll('.item').forEach(item => {
+            item.addEventListener('click', function() {
+                // Show loading
+                document.getElementById('loading').classList.add('active');
+                
+                // Remove active from all items
+                document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
+                
+                // Add active to clicked item
+                this.classList.add('active');
+                
+                // Simulate loading delay for premium feel
+                setTimeout(() => {
+                    const violenceId = this.getAttribute('data-id');
+                    const violence = violenceData[violenceId];
+                    
+                    if (violence) {
+                        // Update detail panel
+                        document.getElementById('detailTitle').textContent = violence.title;
+                        document.getElementById('detailCategory').textContent = violence.category;
+                        document.getElementById('detailContent').innerHTML = `<p>${violence.description}</p>`;
+                        
+                        // Update metrics
+                        const metricsContainer = document.getElementById('detailMetrics');
+                        metricsContainer.innerHTML = '';
+                        violence.metrics.forEach(metric => {
+                            const metricCard = document.createElement('div');
+                            metricCard.className = 'metric-card';
+                            metricCard.innerHTML = `
+                                <div class="metric-value">${metric.value}</div>
+                                <div class="metric-label">${metric.label}</div>
+                            `;
+                            metricsContainer.appendChild(metricCard);
+                        });
+                        
+                        // Update examples
+                        const examplesGrid = document.getElementById('examplesGrid');
+                        examplesGrid.innerHTML = '';
+                        violence.examples.forEach(example => {
+                            const exampleItem = document.createElement('div');
+                            exampleItem.className = 'example-item';
+                            exampleItem.innerHTML = `
+                                <i class="${example.icon} example-icon"></i>
+                                <span>${example.text}</span>
+                            `;
+                            examplesGrid.appendChild(exampleItem);
+                        });
+                        
+                        // Show detail panel
+                        document.getElementById('detailPanel').classList.add('active');
+                        
+                        // Scroll to detail panel
+                        document.getElementById('detailPanel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                    
+                    // Hide loading
+                    document.getElementById('loading').classList.remove('active');
+                }, 500);
+            });
+        });
+
+        // Action buttons handlers
+        document.querySelectorAll('.action-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Create ripple effect
+                const ripple = document.createElement('span');
+                ripple.style.position = 'absolute';
+                ripple.style.width = '20px';
+                ripple.style.height = '20px';
+                ripple.style.background = 'rgba(255, 255, 255, 0.5)';
+                ripple.style.borderRadius = '50%';
+                ripple.style.transform = 'translate(-50%, -50%)';
+                ripple.style.pointerEvents = 'none';
+                ripple.style.animation = 'ripple 0.6s ease-out';
+                
+                const rect = this.getBoundingClientRect();
+                ripple.style.left = (event.clientX - rect.left) + 'px';
+                ripple.style.top = (event.clientY - rect.top) + 'px';
+                
+                this.style.position = 'relative';
+                this.style.overflow = 'hidden';
+                this.appendChild(ripple);
+                
+                setTimeout(() => ripple.remove(), 600);
+                
+                // Simulate action
+                if (this.textContent.includes('Télécharger')) {
+                    alert('Génération du rapport PDF en cours...');
+                } else if (this.textContent.includes('Partager')) {
+                    alert('Lien de partage copié dans le presse-papiers!');
+                } else if (this.textContent.includes('Alertes')) {
+                    alert('Alertes activées pour cette catégorie!');
+                }
+            });
+        });
+
+        // Add ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    width: 200px;
+                    height: 200px;
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Animate stats on load
+        function animateStats() {
+            const stats = document.querySelectorAll('.stat-value, .metric-value');
+            stats.forEach(stat => {
+                const finalValue = stat.textContent;
+                const isPercentage = finalValue.includes('%');
+                const isTime = finalValue.includes('h');
+                const isCurrency = finalValue.includes('€');
+                const isDecimal = finalValue.includes('.');
+                
+                let numericValue = parseFloat(finalValue.replace(/[^0-9.]/g, ''));
+                let currentValue = 0;
+                const increment = numericValue / 50;
+                
+                const timer = setInterval(() => {
+                    currentValue += increment;
+                    if (currentValue >= numericValue) {
+                        currentValue = numericValue;
+                        clearInterval(timer);
+                    }
+                    
+                    if (isPercentage) {
+                        stat.textContent = currentValue.toFixed(0) + '%';
+                    } else if (isTime) {
+                        stat.textContent = currentValue.toFixed(1) + 'h';
+                    } else if (isCurrency) {
+                        stat.textContent = '€' + currentValue.toFixed(0) + 'k';
+                    } else if (isDecimal) {
+                        stat.textContent = currentValue.toFixed(1);
+                    } else {
+                        stat.textContent = Math.floor(currentValue).toLocaleString();
+                    }
+                }, 30);
+            });
+        }
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            createParticles();
+            animateStats();
+            
+            // Auto-update stats every 5 seconds for real-time feel
+            setInterval(() => {
+                document.getElementById('totalCases').textContent = 
+                    (parseInt(document.getElementById('totalCases').textContent.replace(',', '')) + Math.floor(Math.random() * 5)).toLocaleString();
+                document.getElementById('activeUsers').textContent = 
+                    (parseInt(document.getElementById('activeUsers').textContent) + Math.floor(Math.random() * 3) - 1);
+            }, 5000);
+        });
+
+        // Select first item by default
+        setTimeout(() => {
+            document.querySelector('.item').click();
+        }, 1000);
+    </script>
+</body>
+</html>
